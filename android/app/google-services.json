@@ -12,7 +12,20 @@
           "package_name": "com.example.cyber_sheild"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "1038551703956-i7a508cjunr51skonjpskp06smooa0bt.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.cyber_sheild",
+            "certificate_hash": "747dbc3f9d5b0cb321698a5984315c8caabbe599"
+          }
+        },
+        {
+          "client_id": "1038551703956-u3lmclham5a0525cfg86pof09sb7e07l.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyDyfdp6u67bebSbMAxIepvME1z4njN2SfY"
@@ -20,7 +33,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1038551703956-u3lmclham5a0525cfg86pof09sb7e07l.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "1038551703956-a0v6a5ej4tur3m6ajrgvnghf3cbhs0js.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.cyberSheild"
+              }
+            }
+          ]
         }
       }
     }
