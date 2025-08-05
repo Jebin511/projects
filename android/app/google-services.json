@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1038551703956",
+    "project_id": "audiodetectauth",
+    "storage_bucket": "audiodetectauth.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1038551703956:android:aebafa025259c441a02f81",
+        "android_client_info": {
+          "package_name": "com.example.cyber_sheild"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDyfdp6u67bebSbMAxIepvME1z4njN2SfY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
