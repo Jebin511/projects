@@ -76,10 +76,13 @@ class _Dash_boardState extends State<Dash_board> {
                     ElevatedButton(
                       onPressed: toggleProtection,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor:
-                            isProtected ? Colors.red : Colors.green,
+                        backgroundColor: isProtected
+                            ? Colors.red
+                            : Colors.green,
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 24, vertical: 12),
+                          horizontal: 24,
+                          vertical: 12,
+                        ),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(30),
                         ),
@@ -151,10 +154,7 @@ class InfoCard extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 6),
-            Text(
-              label,
-              style: const TextStyle(color: Colors.white70),
-            ),
+            Text(label, style: const TextStyle(color: Colors.white70)),
           ],
         ),
       ),
@@ -191,11 +191,14 @@ class FeatureTile extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title,
-                    style: const TextStyle(
-                        color: Colors.white, fontWeight: FontWeight.bold)),
-                Text(subtitle,
-                    style: const TextStyle(color: Colors.white70)),
+                Text(
+                  title,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Text(subtitle, style: const TextStyle(color: Colors.white70)),
               ],
             ),
           ),
