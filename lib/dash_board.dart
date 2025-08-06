@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class Dash_board extends StatefulWidget {
   const Dash_board({super.key});
@@ -8,13 +10,45 @@ class Dash_board extends StatefulWidget {
 }
 
 class _Dash_boardState extends State<Dash_board> {
-  bool isProtected = false;
+  Future<void> requestPermissions() async {
+  Map<Permission, PermissionStatus> statuses = await [
+    Permission.phone,
+    Permission.microphone,
+    Permission.audio,
+  ].request();
 
-  void toggleProtection() {
-    setState(() {
-      isProtected = !isProtected;
-    });
+  if (statuses[Permission.phone]!.isDenied ||
+      statuses[Permission.microphone]!.isDenied) {
+    // Show a dialog or snackbar explaining the importance of permissions
+    print("Permissions not granted");
+  } else {
+    print("All required permissions granted");
   }
+}
+  bool isProtected = false;
+  @override
+void initState() {
+  super.initState();
+  requestPermissions();
+}
+static const platform = MethodChannel('com.yourapp.protection');
+
+Future<void> startProtectionService() async {
+  try {
+    await platform.invokeMethod('startMonitoring');
+  } on PlatformException catch (e) {
+    debugPrint("Error starting protection: ${e.message}");
+  }
+}
+ void toggleProtection() {
+  setState(() {
+    isProtected = !isProtected;
+  });
+
+  if (isProtected) {
+    startProtectionService();
+  }
+}
 
   @override
   Widget build(BuildContext context) {
@@ -207,4 +241,7 @@ class FeatureTile extends StatelessWidget {
       ),
     );
   }
+
+
+
 }

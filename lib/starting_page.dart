@@ -74,57 +74,60 @@ class StartingPage extends StatelessWidget {
                     elevation: 10,
                   ),
                   onPressed: () async {
-                    final currentContext = context; // ✅ Capture context safely
+                    final currentContext = context;
+                    Navigator.of(context).push(
+                      MaterialPageRoute(builder: (context) => PermissonsPage()),
+                    ); // ✅ Capture context safely
 
-                    try {
-                      showTopSnackBar(
-                        currentContext,
-                        const TopSnackBar(
-                          title: "Signing in",
-                          subtitle: "Connecting to Google authentication",
-                        ),
-                      );
+                    // try {
+                    //   showTopSnackBar(
+                    //     currentContext,
+                    //     const TopSnackBar(
+                    //       title: "Signing in",
+                    //       subtitle: "Connecting to Google authentication",
+                    //     ),
+                    //   );
 
-                      final GoogleSignInAccount? googleUser =
-                          await _googleSignIn.signIn();
-                      if (googleUser == null) {
-                        showTopSnackBar(
-                          currentContext,
-                          const TopSnackBar(
-                            title: "Sign-in canceled",
-                            subtitle: "You didn't complete the sign-in",
-                          ),
-                        );
-                        return;
-                      }
+                    //   final GoogleSignInAccount? googleUser =
+                    //       await _googleSignIn.signIn();
+                    //   if (googleUser == null) {
+                    //     showTopSnackBar(
+                    //       currentContext,
+                    //       const TopSnackBar(
+                    //         title: "Sign-in canceled",
+                    //         subtitle: "You didn't complete the sign-in",
+                    //       ),
+                    //     );
+                    //     return;
+                    //   }
 
-                      final GoogleSignInAuthentication googleAuth =
-                          await googleUser.authentication;
+                    //   final GoogleSignInAuthentication googleAuth =
+                    //       await googleUser.authentication;
 
-                      final credential = GoogleAuthProvider.credential(
-                        accessToken: googleAuth.accessToken,
-                        idToken: googleAuth.idToken,
-                      );
+                    //   final credential = GoogleAuthProvider.credential(
+                    //     accessToken: googleAuth.accessToken,
+                    //     idToken: googleAuth.idToken,
+                    //   );
 
-                      await _auth.signInWithCredential(credential);
+                    //   await _auth.signInWithCredential(credential);
 
-                      // ✅ Only navigate if the widget is still in the widget tree
-                      if (currentContext.mounted) {
-                        Navigator.of(currentContext).pushReplacement(
-                          MaterialPageRoute(
-                            builder: (context) => PermissonsPage(),
-                          ),
-                        );
-                      }
-                    } catch (e) {
-                      showTopSnackBar(
-                        currentContext,
-                        TopSnackBar(
-                          title: "Sign-in failed",
-                          subtitle: e.toString(),
-                        ),
-                      );
-                    }
+                    //   // ✅ Only navigate if the widget is still in the widget tree
+                    //   if (currentContext.mounted) {
+                    //     Navigator.of(currentContext).pushReplacement(
+                    //       MaterialPageRoute(
+                    //         builder: (context) => PermissonsPage(),
+                    //       ),
+                    //     );
+                    //   }
+                    // } catch (e) {
+                    //   showTopSnackBar(
+                    //     currentContext,
+                    //     TopSnackBar(
+                    //       title: "Sign-in failed",
+                    //       subtitle: e.toString(),
+                    //     ),
+                    //   );
+                    // }
                   },
                   icon: const Icon(Icons.lock_outline),
                   label: const Text("Sign in with Google"),

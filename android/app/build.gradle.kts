@@ -1,18 +1,15 @@
 plugins {
     id("com.android.application")
-    // START: FlutterFire Configuration
-    id("com.google.gms.google-services")
-    // END: FlutterFire Configuration
+    id("com.google.gms.google-services") // 🔥 Firebase Google Services
     id("kotlin-android")
-    // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
-    id("dev.flutter.flutter-gradle-plugin")
+    id("dev.flutter.flutter-gradle-plugin") // ⚙️ Flutter plugin (must be last)
 }
 
 android {
     namespace = "com.example.cyber_sheild"
-    compileSdk = flutter.compileSdkVersion
-    ndkVersion = "27.0.12077973"
+    compileSdk = 35 // 🧱 Use highest available while still targeting Android 9
 
+    ndkVersion = "27.0.12077973"
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
@@ -20,24 +17,19 @@ android {
     }
 
     kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_11.toString()
+        jvmTarget = "11"
     }
 
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId = "com.example.cyber_sheild"
-        // You can update the following values to match your application needs.
-        // For more information, see: https://flutter.dev/to/review-gradle-config.
-        minSdk = 23
-        targetSdk = flutter.targetSdkVersion
+        minSdk = 28         // ✅ Minimum SDK set to Android 9
+        targetSdk = 28      // 🎯 Targeting Android 9 explicitly
         versionCode = flutter.versionCode
         versionName = flutter.versionName
     }
 
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
             signingConfig = signingConfigs.getByName("debug")
         }
     }
@@ -45,4 +37,21 @@ android {
 
 flutter {
     source = "../.."
+}
+
+dependencies {
+    // ✅ Firebase Core
+    implementation("com.google.firebase:firebase-core:21.1.1")
+
+    // ✅ Firebase Auth
+    implementation("com.google.firebase:firebase-auth:23.0.0")
+
+    // ✅ Google Sign-In
+    implementation("com.google.android.gms:play-services-auth:21.1.1")
+
+    // ✅ Permission Handler uses AndroidX Activity
+    implementation("androidx.activity:activity:1.8.2")
+
+    // ✅ OkHttp for HTTP requests
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
 }
