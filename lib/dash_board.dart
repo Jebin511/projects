@@ -10,45 +10,65 @@ class Dash_board extends StatefulWidget {
 }
 
 class _Dash_boardState extends State<Dash_board> {
-  Future<void> requestPermissions() async {
-  Map<Permission, PermissionStatus> statuses = await [
-    Permission.phone,
-    Permission.microphone,
-    Permission.audio,
-  ].request();
-
-  if (statuses[Permission.phone]!.isDenied ||
-      statuses[Permission.microphone]!.isDenied) {
-    // Show a dialog or snackbar explaining the importance of permissions
-    print("Permissions not granted");
-  } else {
-    print("All required permissions granted");
-  }
-}
   bool isProtected = false;
+  bool isRecording = false;
+  String? recordedFilePath;
+
+  static const platform = MethodChannel('com.yourapp.protection');
+
   @override
-void initState() {
-  super.initState();
-  requestPermissions();
-}
-static const platform = MethodChannel('com.yourapp.protection');
-
-Future<void> startProtectionService() async {
-  try {
-    await platform.invokeMethod('startMonitoring');
-  } on PlatformException catch (e) {
-    debugPrint("Error starting protection: ${e.message}");
+  void initState() {
+    super.initState();
+    requestPermissions();
   }
-}
- void toggleProtection() {
-  setState(() {
-    isProtected = !isProtected;
-  });
 
-  if (isProtected) {
-    startProtectionService();
+  Future<void> requestPermissions() async {
+    Map<Permission, PermissionStatus> statuses = await [
+      Permission.phone,
+      Permission.microphone,
+      Permission.audio,
+    ].request();
+
+    if (statuses[Permission.phone]!.isDenied ||
+        statuses[Permission.microphone]!.isDenied) {
+      debugPrint("❌ Permissions not granted");
+    } else {
+      debugPrint("✅ All required permissions granted");
+    }
   }
-}
+
+  Future<void> startProtectionService() async {
+    try {
+      final result = await platform.invokeMethod('startMonitoring');
+
+      if (result != null && result is String) {
+        setState(() {
+          isRecording = true;
+          recordedFilePath = result;
+        });
+        debugPrint("🎙️ Recording started at: $recordedFilePath");
+      } else {
+        debugPrint("⚠️ Unexpected result from native: $result");
+      }
+    } on PlatformException catch (e) {
+      debugPrint("🚨 Error: ${e.message}");
+    }
+  }
+
+  void toggleProtection() {
+    setState(() {
+      isProtected = !isProtected;
+    });
+
+    if (isProtected) {
+      startProtectionService();
+    } else {
+      setState(() {
+        isRecording = false;
+        recordedFilePath = null;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -99,6 +119,19 @@ Future<void> startProtectionService() async {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
+                    if (isRecording) const RecordingIndicator(),
+                    if (isRecording && recordedFilePath != null)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 8),
+                        child: Text(
+                          'Saved to:\n$recordedFilePath',
+                          style: const TextStyle(
+                            color: Colors.white38,
+                            fontSize: 12,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
                     Text(
                       isProtected
                           ? 'Monitoring active • Safe to receive calls'
@@ -110,9 +143,8 @@ Future<void> startProtectionService() async {
                     ElevatedButton(
                       onPressed: toggleProtection,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: isProtected
-                            ? Colors.red
-                            : Colors.green,
+                        backgroundColor:
+                            isProtected ? Colors.red : Colors.green,
                         padding: const EdgeInsets.symmetric(
                           horizontal: 24,
                           vertical: 12,
@@ -122,7 +154,7 @@ Future<void> startProtectionService() async {
                         ),
                       ),
                       child: Text(
-                        isProtected ? 'Test Alert System' : 'Start Protection',
+                        isProtected ? 'Stop Protection' : 'Start Protection',
                         style: const TextStyle(fontWeight: FontWeight.bold),
                       ),
                     ),
@@ -241,7 +273,53 @@ class FeatureTile extends StatelessWidget {
       ),
     );
   }
+}
 
+class RecordingIndicator extends StatefulWidget {
+  const RecordingIndicator({super.key});
 
+  @override
+  State<RecordingIndicator> createState() => _RecordingIndicatorState();
+}
 
+class _RecordingIndicatorState extends State<RecordingIndicator>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+
+  @override
+  void initState() {
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 1000),
+      vsync: this,
+    )..repeat(reverse: true);
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 8, bottom: 12),
+      child: FadeTransition(
+        opacity: _controller,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: const [
+            Icon(Icons.fiber_manual_record, color: Colors.red, size: 16),
+            SizedBox(width: 6),
+            Text(
+              'Recording...',
+              style: TextStyle(color: Colors.redAccent),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
