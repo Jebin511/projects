@@ -1,8 +1,9 @@
-import 'package:cyber_sheild/permissons_page.dart';
-import 'package:cyber_sheild/widgets/snackbar.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+
+import 'package:cyber_sheild/permissons_page.dart';
+import 'package:cyber_sheild/widgets/snackbar.dart';
 
 class StartingPage extends StatelessWidget {
   StartingPage({super.key});
@@ -75,59 +76,57 @@ class StartingPage extends StatelessWidget {
                   ),
                   onPressed: () async {
                     final currentContext = context;
-                    Navigator.of(context).push(
-                      MaterialPageRoute(builder: (context) => PermissonsPage()),
-                    ); // ✅ Capture context safely
 
-                    // try {
-                    //   showTopSnackBar(
-                    //     currentContext,
-                    //     const TopSnackBar(
-                    //       title: "Signing in",
-                    //       subtitle: "Connecting to Google authentication",
-                    //     ),
-                    //   );
+                    try {
+                      showTopSnackBar(
+                        currentContext,
+                        const TopSnackBar(
+                          title: "Signing in",
+                          subtitle: "Connecting to Google authentication",
+                        ),
+                      );
 
-                    //   final GoogleSignInAccount? googleUser =
-                    //       await _googleSignIn.signIn();
-                    //   if (googleUser == null) {
-                    //     showTopSnackBar(
-                    //       currentContext,
-                    //       const TopSnackBar(
-                    //         title: "Sign-in canceled",
-                    //         subtitle: "You didn't complete the sign-in",
-                    //       ),
-                    //     );
-                    //     return;
-                    //   }
+                      final GoogleSignInAccount? googleUser =
+                          await _googleSignIn.signIn();
 
-                    //   final GoogleSignInAuthentication googleAuth =
-                    //       await googleUser.authentication;
+                      if (googleUser == null) {
+                        showTopSnackBar(
+                          currentContext,
+                          const TopSnackBar(
+                            title: "Sign-in canceled",
+                            subtitle: "You didn't complete the sign-in",
+                          ),
+                        );
+                        return;
+                      }
 
-                    //   final credential = GoogleAuthProvider.credential(
-                    //     accessToken: googleAuth.accessToken,
-                    //     idToken: googleAuth.idToken,
-                    //   );
+                      final GoogleSignInAuthentication googleAuth =
+                          await googleUser.authentication;
 
-                    //   await _auth.signInWithCredential(credential);
+                      final credential = GoogleAuthProvider.credential(
+                        accessToken: googleAuth.accessToken,
+                        idToken: googleAuth.idToken,
+                      );
 
-                    //   // ✅ Only navigate if the widget is still in the widget tree
-                    //   if (currentContext.mounted) {
-                    //     Navigator.of(currentContext).pushReplacement(
-                    //       MaterialPageRoute(
-                    //         builder: (context) => PermissonsPage(),
-                    //       ),
-                    //     );
-                    //   }
-                    // } catch (e) {
-                    //   showTopSnackBar(
-                    //     currentContext,
-                    //     TopSnackBar(
-                    //       title: "Sign-in failed",
-                    //       subtitle: e.toString(),
-                    //     ),
-                    //   );
-                    // }
+                      await _auth.signInWithCredential(credential);
+
+                      // ✅ Navigate after successful login
+                      if (currentContext.mounted) {
+                        Navigator.of(currentContext).pushReplacement(
+                          MaterialPageRoute(
+                            builder: (context) => PermissonsPage(),
+                          ),
+                        );
+                      }
+                    } catch (e) {
+                      showTopSnackBar(
+                        currentContext,
+                        TopSnackBar(
+                          title: "Sign-in failed",
+                          subtitle: e.toString(),
+                        ),
+                      );
+                    }
                   },
                   icon: const Icon(Icons.lock_outline),
                   label: const Text("Sign in with Google"),
