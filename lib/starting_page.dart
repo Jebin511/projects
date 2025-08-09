@@ -1,15 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:google_sign_in/google_sign_in.dart';
-
 import 'package:cyber_sheild/permissons_page.dart';
-import 'package:cyber_sheild/widgets/snackbar.dart';
 
 class StartingPage extends StatelessWidget {
-  StartingPage({super.key});
-
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-  final GoogleSignIn _googleSignIn = GoogleSignIn();
+  const StartingPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -17,7 +10,7 @@ class StartingPage extends StatelessWidget {
       backgroundColor: const Color(0xFF0D0F12),
       body: Center(
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(16),
           child: Container(
             decoration: BoxDecoration(
               color: const Color(0xFF1A1C20),
@@ -74,59 +67,12 @@ class StartingPage extends StatelessWidget {
                     ),
                     elevation: 10,
                   ),
-                  onPressed: () async {
-                    final currentContext = context;
-
-                    try {
-                      showTopSnackBar(
-                        currentContext,
-                        const TopSnackBar(
-                          title: "Signing in",
-                          subtitle: "Connecting to Google authentication",
-                        ),
-                      );
-
-                      final GoogleSignInAccount? googleUser =
-                          await _googleSignIn.signIn();
-
-                      if (googleUser == null) {
-                        showTopSnackBar(
-                          currentContext,
-                          const TopSnackBar(
-                            title: "Sign-in canceled",
-                            subtitle: "You didn't complete the sign-in",
-                          ),
-                        );
-                        return;
-                      }
-
-                      final GoogleSignInAuthentication googleAuth =
-                          await googleUser.authentication;
-
-                      final credential = GoogleAuthProvider.credential(
-                        accessToken: googleAuth.accessToken,
-                        idToken: googleAuth.idToken,
-                      );
-
-                      await _auth.signInWithCredential(credential);
-
-                      // ✅ Navigate after successful login
-                      if (currentContext.mounted) {
-                        Navigator.of(currentContext).pushReplacement(
-                          MaterialPageRoute(
-                            builder: (context) => PermissonsPage(),
-                          ),
-                        );
-                      }
-                    } catch (e) {
-                      showTopSnackBar(
-                        currentContext,
-                        TopSnackBar(
-                          title: "Sign-in failed",
-                          subtitle: e.toString(),
-                        ),
-                      );
-                    }
+                  onPressed: () {
+                    Navigator.of(context).pushReplacement(
+                      MaterialPageRoute(
+                        builder: (context) =>  PermissonsPage(),
+                      ),
+                    );
                   },
                   icon: const Icon(Icons.lock_outline),
                   label: const Text("Sign in with Google"),
@@ -141,36 +87,14 @@ class StartingPage extends StatelessWidget {
 
   Widget buildText(IconData icon, String text, Color color) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4.0),
+      padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
         children: [
           Icon(icon, color: color),
           const SizedBox(width: 10),
-          Expanded(
-            child: Text(text, style: const TextStyle(color: Colors.white)),
-          ),
+          Expanded(child: Text(text, style: const TextStyle(color: Colors.white))),
         ],
       ),
     );
-  }
-
-  void showTopSnackBar(BuildContext context, TopSnackBar snackBarWidget) {
-    final overlay = Overlay.of(context);
-    late OverlayEntry overlayEntry;
-
-    overlayEntry = OverlayEntry(
-      builder: (context) => Positioned(
-        top: MediaQuery.of(context).padding.top + 10,
-        left: 16,
-        right: 16,
-        child: Material(color: Colors.transparent, child: snackBarWidget),
-      ),
-    );
-
-    overlay.insert(overlayEntry);
-
-    Future.delayed(const Duration(seconds: 3)).then((_) {
-      if (overlayEntry.mounted) overlayEntry.remove();
-    });
   }
 }
