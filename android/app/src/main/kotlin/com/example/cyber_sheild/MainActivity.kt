@@ -2,7 +2,6 @@ package com.example.cyber_sheild
 
 import android.media.MediaRecorder
 import android.os.Environment
-import android.os.Handler
 import android.media.MediaScannerConnection
 import android.util.Log
 import io.flutter.embedding.android.FlutterActivity
@@ -10,13 +9,13 @@ import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
 import java.io.File
 import java.io.IOException
+import kotlin.concurrent.thread
 
 class MainActivity : FlutterActivity() {
 
     private val CHANNEL = "com.yourapp.protection"
     private var mediaRecorder: MediaRecorder? = null
     private var outputFilePath: String? = null
-    private val handler by lazy { Handler(mainLooper) }  // Lazy initialization to avoid NPE
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
@@ -25,15 +24,13 @@ class MainActivity : FlutterActivity() {
             when (call.method) {
                 "startMonitoring" -> {
                     val started = startRecording()
-                    if (started) {
-                        result.success("Recording started")
-                    } else {
-                        result.error("START_FAILED", "Failed to start recording", null)
-                    }
+                    if (started) result.success("Recording started")
+                    else result.error("START_FAILED", "Failed to start recording", null)
                 }
                 "stopMonitoring" -> {
-                    stopRecording()
-                    result.success("Recording stopped, saved to: $outputFilePath")
+                    stopRecording { path ->
+                        result.success("Recording stopped, saved to: $path")
+                    }
                 }
                 else -> result.notImplemented()
             }
@@ -47,7 +44,7 @@ class MainActivity : FlutterActivity() {
                 musicDir.mkdirs()
             }
 
-            val fileName = "protection_record.m4a"
+            val fileName = "protection_record_${System.currentTimeMillis()}.m4a"
             val file = File(musicDir, fileName)
             outputFilePath = file.absolutePath
 
@@ -64,7 +61,6 @@ class MainActivity : FlutterActivity() {
 
             Log.d("Recorder", "Recording started: $outputFilePath")
             return true
-
         } catch (e: IOException) {
             Log.e("Recorder", "startRecording failed: ${e.message}")
             return false
@@ -74,21 +70,15 @@ class MainActivity : FlutterActivity() {
         }
     }
 
-    private fun stopRecording() {
-        try {
-            mediaRecorder?.apply {
-                stop()  // Finalize recording, write data
-            }
-
-            // Delay a bit to let file finalize properly
-            handler.postDelayed({
+    private fun stopRecording(onComplete: (String?) -> Unit) {
+        thread { // Run in background thread to avoid blocking UI
+            try {
                 mediaRecorder?.apply {
-                    reset()
+                    stop()
                     release()
                 }
                 mediaRecorder = null
 
-                // Trigger media scan so file is visible to other apps immediately
                 outputFilePath?.let { path ->
                     MediaScannerConnection.scanFile(
                         this@MainActivity,
@@ -96,13 +86,14 @@ class MainActivity : FlutterActivity() {
                         arrayOf("audio/mp4"),
                         null
                     )
+                    Log.d("Recorder", "Recording stopped and saved at: $path")
                 }
 
-                Log.d("Recorder", "Recording stopped and finalized, saved at: $outputFilePath")
-            }, 500) // 500 ms delay before releasing
-
-        } catch (e: RuntimeException) {
-            Log.e("Recorder", "stopRecording failed: ${e.message}")
+                onComplete(outputFilePath)
+            } catch (e: RuntimeException) {
+                Log.e("Recorder", "stopRecording failed: ${e.message}")
+                onComplete(null)
+            }
         }
     }
 }
